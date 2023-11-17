@@ -2,32 +2,33 @@ import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import NavBar from '../components/NavBar';
 
-const socket = io('http://localhost:3001'); // Adjust URL if necessary
+// const socket = io('http://localhost:3001');
+const socket = io('http://studio-15.local:3001');
 
 export default function Modes() {
   const numberOfElements = 16;
   const elements = Array.from({ length: numberOfElements }, (_, i) => i + 1);
 
   const [modes, setModes] = useState(Array(numberOfElements).fill(0)); // Initialize with 0's or appropriate default values
-  const [modeSliders, setModeSliders] = useState(Array(numberOfElements).fill(0)); // Initialize with 0.5 or appropriate default values
+  const [modeSliders, setModeSliders] = useState(Array(numberOfElements).fill(0.5)); // Initialize with 0.5 or appropriate default values
   const [exclusiveToggle, setExclusiveToggle] = useState(false); // Exclusive toggle state
-
 
   useEffect(() => {
     socket.emit('request_initial_state');
 
     socket.on('initial_state', (jsonElementStates) => {
-      const elementStates = JSON.parse(jsonElementStates); // Parse JSON string
+      const elementStates = JSON.parse(jsonElementStates);
       setModes(elementStates.modes);
       setModeSliders(elementStates.modeSliders);
-      console.log('Initial State:', elementStates);
+      console.log('Received Initial State:', elementStates);
     });
 
     socket.on('element_updated', (jsonUpdatedStates) => {
-      const updatedStates = JSON.parse(jsonUpdatedStates); // Parse JSON string
+      const updatedStates = JSON.parse(jsonUpdatedStates);
       setModes(updatedStates.modes);
       setModeSliders(updatedStates.modeSliders);
-      console.log('Updated State:', updatedStates);
+      setExclusiveToggle(updatedStates.exclusiveToggle);
+      console.log('Recieved Updated State:', updatedStates);
     });
 
     return () => {
@@ -74,6 +75,7 @@ export default function Modes() {
   // Toggle exclusive mode behavior
   const handleExclusiveToggle = () => {
     setExclusiveToggle(!exclusiveToggle);
+    console.log(`Exclusive toggle is now ${!exclusiveToggle}`);
   };
 
   const handleResetButtonClick = () => {
@@ -95,7 +97,6 @@ export default function Modes() {
 
     console.log('Reset all modes and sliders to default values');
   };
-
 
   return (
     <div>
@@ -148,5 +149,4 @@ export default function Modes() {
       </div>
     </div>
   );
-
 }

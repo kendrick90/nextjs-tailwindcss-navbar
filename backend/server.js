@@ -1,4 +1,6 @@
 // server.js
+// Sockety.io server and state management
+
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -7,15 +9,22 @@ const cors = require("cors");
 const app = express();
 app.use(cors());
 
+// Create server. Cors is needed to allow
+// cross-origin requests on localhost
+// ie http on 3000 and ws on 3001
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    // origin: "http://localhost:3000",
+    origin: "*",
+    // origin: "http://*.local:3000",
+    // origin: "http://studio-15.local",
     methods: ["GET", "POST"],
   },
-  allowEIO3: true, // For touchdesigner compatibility
+  allowEIO3: true,
 });
 
+// Create initial state json for server
 const initializeElementStates = () => {
   const numModes = 16;
   const numEffects = 16;
@@ -37,8 +46,10 @@ const initializeElementStates = () => {
   });
 };
 
+// Initialize state
 let elementStates = initializeElementStates();
 
+// Update state
 function updateElementState(data) {
   const { id, category, value } = data;
   let states = JSON.parse(elementStates);
@@ -60,12 +71,25 @@ function updateElementState(data) {
   elementStates = JSON.stringify(states);
 }
 
+// Socket.io handlers
+
+io.on('connection', function (sock) {
+  var clientIpAddress = sock.request.headers['x-forwarded-for'] || sock.request.connection.remoteAddress;
+  console.log(' new request from : ' + clientIpAddress);
+});
+
 io.on("connection", (socket) => {
   console.log(`User Connected: ${socket.id}`);
+  const client = socket.id;
+  const ip = client.ip;
+
+  var address = socket.handshake.address;
+  console.log('New connection from ' + address.address + ':' + address.port);
+
 
   socket.on("request_initial_state", () => {
-    socket.emit("element_updated", elementStates); // Update client
-    console.log("Sent initial state to client:", socket.id);
+    socket.emit("initial_state", elementStates); // Send client full initial state
+    console.log("Sent full initial state to client:", socket.id);
   });
 
   socket.on("update_element", (data) => {
@@ -79,6 +103,7 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(3001, () => {
+// Start socket.io server
+server.listen(3001, "0.0.0.0", () => {
   console.log("Server is running on port 3001");
 });
