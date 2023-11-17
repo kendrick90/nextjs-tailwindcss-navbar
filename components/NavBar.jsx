@@ -20,13 +20,14 @@ function NavBar() {
     { path: "/colors", label: "Colors", Icon: MdPalette },
     { path: "/settings", label: "Settings", Icon: MdOutlineSettings },
     { path: "/status", label: "Status", Icon: TbCloudQuestion },
+    { path: "/test", label: "TEST", Icon: TbCloudQuestion },
   ];
 
   return (
     <div>
       {/* NAVBAR */}
       {/* background black fill entire top*/}
-      <nav className="w-full bg-black fixed">
+      <nav className="w-full bg-black fixed top-0 left-0 right-0 z-10">
         {/* center logo and menu items slightly away from edges and set max size on lg screens */}
         <div className="justify-between px-4 mx-auto lg:max-w-7xl md:items-center md:flex md:px-8">
           {/* LOGO AND HAMBURGER BUTTON */}
