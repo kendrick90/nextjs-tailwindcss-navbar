@@ -153,8 +153,7 @@ io.on("connection", (socket) => {
   socket.on("reset_modes", () => {
     console.log("Resetting modes");
     // Reset modes
-    elementStates.modes = Array(numModes).fill({ name: "", enabled: false, intensity: 0.0 });
-
+    elementStates.modes = Array(elementStates.modes.length).fill({ name: "", enabled: false, intensity: 0.0 });
   });
 
   socket.on("send_text", (data) => {
