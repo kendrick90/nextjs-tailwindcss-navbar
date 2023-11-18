@@ -1,0 +1,20 @@
+{
+  "modes": [
+    { "name": "Mode1", "enabled": false, "intensity": 0.0 },
+    { "name": "Mode2", "enabled": false, "intensity": 0.0 },
+    { "name": "Mode3", "enabled": false, "intensity": 0.0 },
+    { "name": "Mode4", "enabled": false, "intensity": 0.0 }
+  ],
+  "effects": [
+    { "name": "Effect1", "enabled": false, "intensity": 0.0 },
+    { "name": "Effect2", "enabled": false, "intensity": 0.0 },
+    { "name": "Effect3", "enabled": false, "intensity": 0.0 },
+    { "name": "Effect4", "enabled": false, "intensity": 0.0 }
+  ],
+  "settings": [
+    { "name": "Setting1", "value": 0 },
+    { "name": "Setting2", "value": 0 },
+    { "name": "Setting3", "value": 0 },
+    { "name": "Setting4", "value": 0 }
+  ]
+}
