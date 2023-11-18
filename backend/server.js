@@ -28,9 +28,9 @@ const io = new Server(server, {
 // Load initial state from file
 const loadInitialState = () => {
   try {
-    console.log("Loading initial state...");
+    console.log("Loading initial state from file...");
     const data = fs.readFileSync(filePath, "utf8");
-    console.log("Initial state loaded successfully");
+    console.log("Initial state loaded from file successfully");
     console.log(`Initial State: ${data}`);
     return JSON.parse(data);
   } catch (error) {
@@ -45,11 +45,11 @@ if (!elementStates) {
   console.log("Initializing with default values");
   // If loading fails or the file doesn't exist, initialize with default values
   elementStates = {
-    modes: Array(numModes).fill({ name: "", enabled: false, intensity: 0.0 }),
+    modes: Array(numModes).fill({ name: "", enabled: false, intensity: 0.5 }),
     effects: Array(numEffects).fill({ name: "", enabled: false, intensity: 0.0 }),
     settings: Array(16).fill({ name: "", value: 0 }),
   };
-  console.log("Default values initialized");
+  console.log("Default server values initialized");
   console.log(`Initial State: ${JSON.stringify(elementStates)}`);
 }
 
@@ -65,83 +65,15 @@ io.on("connection", (socket) => {
     // Merge the received JSON object with the existing elementStates
     elementStates = { ...elementStates, ...data };
     // get the keys of the merged object
-    // const keys = Object.keys(elementStates);
+
+    // broadcast the updated merged elements
+    socket.broadcast.emit(data);
+
 
     io.emit("full_state", JSON.stringify(elementStates));
     console.log("Sent updated full state to all clients");
     console.log(`Full State: ${JSON.stringify(elementStates)}`);
   });
-
-  // // Update state
-  // // function updateElementState(data) {
-  // //   const { id, category, value } = data;
-  // //   console.log(`Updating element. Category: ${category}, ID: ${id}, Value: ${value}`);
-
-  // //   // Parse the current elementStates JSON
-  // //   const states = JSON.parse(elementStates);
-  // //   console.log("Current states: " + JSON.stringify(states));
-
-  // //   // Check if the category and ID are valid
-  // //   if (states[category] && id > 0 && id <= states[category].length) {
-  // //     console.log("Category is in states and ID is valid... updating state");
-
-  // //     // Handle modes
-  // //     if (category === "modes") {
-  // //       newModeSelected = id;
-  // //       console.log("Updating modes id: " + id);
-
-  // //       if (states.modesExclusive[0]) {
-  // //         console.log("Mode exclusive is true, treating modes as exclusive toggles");
-  // //         // Handle mode updates as exclusive toggles
-  // //         if (value) {
-  // //           // If the mode is being turned on, turn off the last mode selected
-  // //           console.log("Mode is being turned on, turning off last mode selected");
-  // //           states.modes[lastModeSelected - 1] = false;
-  // //           states.modes[id - 1] = true;
-  // //           elementStates = JSON.stringify(states);
-  // //           io.emit("full_state", elementStates);
-  // //           console.log("Sent full state to all clients");
-  // //           console.log(`Full State: ${elementStates}`);
-  // //         } else {
-  // //           // If the mode is being turned off just turn it off
-  // //           states.modes[id - 1] = false;
-  // //           elementStates = JSON.stringify(states);
-  // //           socket.broadcast.emit("element_updated", { id, category, value });
-  // //           console.log("all modes turned off");
-  // //         }
-  // //       } else {
-  // //         // Treat modes as regular toggles/booleans
-  // //         console.log("Mode exclusive is false, treating modes as regular toggles");
-  // //         states[category][id - 1] = value;
-  // //         elementStates = JSON.stringify(states);
-  // //         socket.broadcast.emit("element_updated", { id, category, value });
-  // //         console.log("Updated single mode normally");
-  // //       }
-
-  // //       // Update lastModeSelected
-  // //       lastModeSelected = newModeSelected
-  // //       console.log("Last mode selected: " + lastModeSelected);
-  // //     }
-
-  // //     else {
-  // //       // Handle regular items
-  // //       console.log("Updating regular item");
-  // //       states[category][id - 1] = value;
-  // //       elementStates = JSON.stringify(states);
-  // //       socket.broadcast.emit("element_updated", { id, category, value });
-  // //       console.log(`Element updated. Category: ${category}, ID: ${id}, Value: ${value}`);
-  // //     }
-
-  // //   } else {
-  // //     // Handle invalid category or ID
-  // //     console.error(`Invalid category or ID: ${category}, ${id}`);
-  // //     return;
-  // //   }
-  // // }
-
-  // socket.on("update_element", (data) => {
-  //   // updateElementState(data);
-  // });
 
   socket.on("request_full_state", () => {
     console.log(`Received request for full state from client IP: ${socket.ip}`);
