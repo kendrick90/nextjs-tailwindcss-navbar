@@ -1,6 +1,6 @@
 {
   "modes": [
-    { "name": "Mode1", "enabled": false, "intensity": 0.1 },
+    { "name": "Super Cool Mode #1", "enabled": false, "intensity": 0.1 },
     { "name": "Mode2", "enabled": true, "intensity": 0.2 },
     { "name": "Mode3", "enabled": false, "intensity": 0.3 },
     { "name": "Mode4", "enabled": true, "intensity": 0.4 }

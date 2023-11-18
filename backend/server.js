@@ -39,14 +39,14 @@ const loadInitialState = () => {
   }
 };
 
-// Initialize elementState
+// Initialize elementStates
 let elementStates = loadInitialState();
 if (!elementStates) {
   console.log("Initializing with default values");
   // If loading fails or the file doesn't exist, initialize with default values
   elementStates = {
-    modes: Array(numModes).fill({ name: "", enabled: false, intensity: 0.5 }),
-    effects: Array(numEffects).fill({ name: "", enabled: false, intensity: 0.0 }),
+    modes: Array(4).fill({ name: "", enabled: false, intensity: 0.5 }),
+    effects: Array(8).fill({ name: "", enabled: false, intensity: 0.0 }),
     settings: Array(16).fill({ name: "", value: 0 }),
   };
   console.log("Default server values initialized");
@@ -55,41 +55,42 @@ if (!elementStates) {
 
 // Socket.io handlers
 io.on("connection", (socket) => {
+  // Store the IP address of the client
   socket.ip = socket.handshake.address;
   console.log(`User Connected. ID: ${socket.id} IP: ${socket.ip}`);
 
-  // Handle merging JSON elements
+  socket.on("request_full_state", () => {
+    console.log("Received request for full state");
+    socket.emit("full_state", JSON.stringify(elementStates));
+    console.log("Sent full state to client");
+  });
+
   socket.on("merge_elements", (data) => {
-    console.log("Merging elements with the current state");
+    console.log("Received elements to merge with the current state");
+    console.log(`Received elements: ${JSON.stringify(data)}`);
 
-    // Merge the received JSON object with the existing elementStates
-    elementStates = { ...elementStates, ...data };
-    // get the keys of the merged object
+    // Update elementStates with the new data
+    Object.assign(elementStates, data);
 
-    // broadcast the updated merged elements
-    socket.broadcast.emit(data);
-
-
+    // Emit the full updated state to all clients
     io.emit("full_state", JSON.stringify(elementStates));
     console.log("Sent updated full state to all clients");
     console.log(`Full State: ${JSON.stringify(elementStates)}`);
   });
-
-  socket.on("request_full_state", () => {
-    console.log(`Received request for full state from client IP: ${socket.ip}`);
-    socket.emit("full_state", JSON.stringify(elementStates));
-    console.log(`Sent full state to client IP: ${socket.ip}`);
-    console.log(`Full State: ${JSON.stringify(elementStates)}`);
-  });
-
   socket.on("reset_modes", () => {
     console.log("Resetting modes");
     // Reset modes logic
-    elementStates.modes = Array(elementStates.modes.length).fill({ name: "", enabled: false, intensity: 0.0 });
+    elementStates.modes = elementStates.modes.map((mode) => ({
+      ...mode,
+      enabled: false,
+      intensity: 0.0,
+    }));
     // broadcast the updated modes
     io.emit("full_state", JSON.stringify(elementStates));
+    console.log(JSON.stringify(elementStates));
     console.log("Sent full state to all clients");
   });
+
 
   socket.on("send_text", (data) => {
     socket.broadcast.emit("receive_text", data);
