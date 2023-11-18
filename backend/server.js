@@ -72,7 +72,7 @@ io.on("connection", (socket) => {
     console.log(`Full State: ${JSON.stringify(elementStates)}`);
   });
 
-  // // // Update state
+  // // Update state
   // // function updateElementState(data) {
   // //   const { id, category, value } = data;
   // //   console.log(`Updating element. Category: ${category}, ID: ${id}, Value: ${value}`);
@@ -152,8 +152,11 @@ io.on("connection", (socket) => {
 
   socket.on("reset_modes", () => {
     console.log("Resetting modes");
-    // Reset modes
+    // Reset modes logic
     elementStates.modes = Array(elementStates.modes.length).fill({ name: "", enabled: false, intensity: 0.0 });
+    // broadcast the updated modes
+    io.emit("full_state", JSON.stringify(elementStates));
+    console.log("Sent full state to all clients");
   });
 
   socket.on("send_text", (data) => {
@@ -165,5 +168,5 @@ io.on("connection", (socket) => {
 const PORT = process.env.PORT || 3001;
 const ip = require('ip');
 server.listen(PORT, "0.0.0.0", () => {
-  console.log('Socket.io server running at http://' + ip.address() + ':' + PORT + '/');
+  console.log('Socket.io server running at http://' + ip.address() + ':' + PORT);
 });

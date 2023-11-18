@@ -1,4 +1,3 @@
-// SocketContext.js
 import React, { createContext, useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
@@ -15,9 +14,16 @@ export const SocketProvider = ({ children }) => {
   });
 
   useEffect(() => {
-    // Request initial state from the server
-    socket.emit('request_full_state');
-    console.log('Requested initial state from the server');
+    // Function to request full state from the server
+    const requestFullState = () => {
+      socket.emit('request_full_state');
+      console.log('Requested full state from the server');
+    };
+
+    // Listen for 'connect' event to trigger full state request on reconnection
+    socket.on('connect', () => {
+      requestFullState();
+    });
 
     // Listen for full state from the server
     socket.on('full_state', (jsonElementStates) => {
@@ -37,11 +43,12 @@ export const SocketProvider = ({ children }) => {
         }
         return prevStates;
       });
-      console.log(`1Updated element: category=${category}, id=${id}, value=${value}`);
+      console.log(`Updated element: category=${category}, id=${id}, value=${value}`);
     });
 
     // Clean up listeners
     return () => {
+      socket.off('connect');
       socket.off('full_state');
       socket.off('element_updated');
     };
@@ -79,7 +86,7 @@ export const SocketProvider = ({ children }) => {
       return updatedStates;
     });
     socket.emit('update_element', { id: index + 1, category, value: value !== undefined ? value : !elementStates[category][index].enabled });
-    console.log(`2Updated element: category=${category}, index=${index}, value=${value}`);
+    console.log(`Updated element: category=${category}, index=${index}, value=${value}`);
   };
 
   const resetModes = () => {
