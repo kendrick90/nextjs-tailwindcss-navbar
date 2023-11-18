@@ -12,7 +12,7 @@
     { "name": "Effect4", "enabled": false, "intensity": 0.0 }
   ],
   "settings": [
-    { "name": "Setting1", "value": 0 },
+    { "name": "modesExclusive", "value": 0 },
     { "name": "Setting2", "value": 0 },
     { "name": "Setting3", "value": 0 },
     { "name": "Setting4", "value": 0 }
