@@ -11,7 +11,7 @@ const fs = require("fs");
 
 const app = express();
 app.use(cors());
-let lastSelectedMode = -1; // Initialize with an invalid mode index
+let lastModeSelected = 1;
 
 // Create server. Cors is needed to allow
 // cross-origin requests on localhost
@@ -60,37 +60,23 @@ io.on("connection", (socket) => {
   console.log(`User Connected. ID: ${socket.id} IP: ${socket.ip}`);
 
   socket.on("request_full_state", () => {
-    console.log("Received request for full state from client IP: " + socket.ip);
+    console.log("Received request for full state");
     socket.emit("full_state", JSON.stringify(elementStates));
-    console.log("Sent full state to client IP: " + socket.ip);
-    console.log(`Full State: ${JSON.stringify(elementStates)}`);
+    console.log("Sent full state to client");
   });
 
   socket.on("merge_elements", (data) => {
     console.log("Received elements to merge with the current state");
     console.log(`Received elements: ${JSON.stringify(data)}`);
 
-    try {
-      // Parse the incoming JSON data
-      const newData = JSON.parse(data);
-      //check if
+    // Update elementStates with the new data
+    Object.assign(elementStates, data);
 
-      // Update elementStates with the new data
-      Object.assign(elementStates, newData);
-      console.log("Merged elements with current state");
-
-      // Emit the updated elements to all clients (including the sender)
-      io.emit("merge_elements", JSON.stringify(newData));
-      console.log("Sent updated elements to all clients");
-
-      console.log(`Elements to merge: ${JSON.stringify(newData)}`);
-    } catch (error) {
-      console.error("Error parsing JSON:", error);
-    }
+    // Emit the full updated state to all clients
+    io.emit("full_state", JSON.stringify(elementStates));
+    console.log("Sent updated full state to all clients");
+    console.log(`Full State: ${JSON.stringify(elementStates)}`);
   });
-
-
-
   socket.on("reset_modes", () => {
     console.log("Resetting modes");
     // Reset modes logic

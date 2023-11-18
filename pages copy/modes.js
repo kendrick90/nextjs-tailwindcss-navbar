@@ -1,12 +1,16 @@
-
 // Modes.js
-// Modes.js
-
 import React, { useContext } from 'react';
 import { SocketContext } from '../context/socketContext';
 
 export default function Modes() {
-  const { elementStates, updateElementState, socket } = useContext(SocketContext);
+  const { elementStates, mergeElements, socket } = useContext(SocketContext);
+
+  // For example, for mode toggle:
+  const handleModeToggle = (mode, index) => {
+    const updatedModes = [...elementStates.modes];
+    updatedModes[index] = { ...mode, enabled: !mode.enabled };
+    mergeElements({ modes: updatedModes });
+  };
 
   return (
     <div>
@@ -20,9 +24,8 @@ export default function Modes() {
                 <div
                   className={`mb-4 rounded-lg ${mode.enabled ? "bg-cyan-600" : ""}`}
                   onClick={() => {
-                    console.log(`Mode ${index + 1} clicked`);
-                    // Toggle the enabled state of the mode
-                    updateElementState('modes', { enabled: !mode.enabled }, index);
+                    console.log(`Toggling mode ${mode.name}`);
+                    handleModeToggle(mode, index);
                   }}
                 >
                   <h2 className="text-xl font-bold text-white text-center">{mode.name}</h2>
@@ -35,7 +38,19 @@ export default function Modes() {
                   step="0.01"
                   value={mode.intensity || 0}
                   onChange={(e) => {
-                    updateElementState('modes', { intensity: parseFloat(e.target.value) }, index);
+                    // Update the intensity of the mode
+                    // Parse the value of the input to a float
+                    const newIntensity = parseFloat(e.target.value);
+                    // Create a new array with the updated mode intensity at the index of the
+                    // mode being updated and the rest of the modes from the previous state
+                    const updatedModes = [...elementStates.modes];
+                    // Update the intensity of the mode at the index of the mode being updated
+                    // Spread the mode object to keep the other properties
+                    updatedModes[index] = { ...mode, intensity: newIntensity };
+
+                    // Emit the updated modes to the server
+                    socket.emit('merge_elements', { modes: updatedModes });
+                    console.log(`Updated mode ${mode.name} intensity to ${newIntensity}`);
                   }}
                   className="w-full appearance-none bg-transparent rounded-full h-4 overflow-hidden"
                   style={{
@@ -52,24 +67,15 @@ export default function Modes() {
         <section className="p-10 pt-4 flex justify-center">
           <button
             className={`${elementStates.settings &&
-              elementStates.settings.find((setting) => setting.name === 'modesExclusive')?.value
+              elementStates.settings.find((setting) => setting.name === 'modeExclusive')?.value
               ? 'bg-green-500 hover:bg-green-700'
               : 'bg-gray-500 hover:bg-gray-700'
               } text-white font-bold py-2 px-4 rounded-full mr-4`}
-            onClick={() => {
-              // Toggle the modeExclusive setting
-              const exclusive = elementStates.settings.find((setting) => setting.name === 'modesExclusive')?.value;
-              console.log('Current modesExclusive value:', exclusive);
-              const newExclusive = !exclusive;
-              console.log('New modesExclusive value:', newExclusive);
-
-              // Update the setting value
-              updateElementState('settings', { value: newExclusive }, elementStates.settings.findIndex((setting) => setting.name === 'modesExclusive'));
-            }}
+            onClick={() => {//
+            }}  // Add onClick handler
           >
             Exclusive
           </button>
-
 
           <button
             className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full"

@@ -1,0 +1,20 @@
+{
+  "modes": [
+    { "name": "Super Cool Mode #1", "enabled": false, "intensity": 0.1 },
+    { "name": "Mode2", "enabled": true, "intensity": 0.2 },
+    { "name": "Mode3", "enabled": false, "intensity": 0.3 },
+    { "name": "Mode4", "enabled": true, "intensity": 0.4 }
+  ],
+  "effects": [
+    { "name": "Effect1", "enabled": false, "intensity": 0.5 },
+    { "name": "Effect2", "enabled": false, "intensity": 0.6 },
+    { "name": "Effect3", "enabled": false, "intensity": 0.7 },
+    { "name": "Effect4", "enabled": true, "intensity": 0.8 }
+  ],
+  "settings": [
+    { "name": "modesExclusive", "value": 1 },
+    { "name": "Setting2", "value": 0 },
+    { "name": "Setting3", "value": 1 },
+    { "name": "Setting4", "value": 0 }
+  ]
+}
